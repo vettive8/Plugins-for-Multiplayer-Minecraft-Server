@@ -17,9 +17,10 @@ The plugin currently focuses on the first playable class: `Zwiadowiec` / `Scout`
   - leather boots
   - 12 HP max health, equal to 6 hearts
 - Scout fall damage immunity.
-- Two Scout variants:
-  - `Scout` / `Zwiadowiec`: normal grapple that only works after the hook is anchored on ground/block or in water.
+- Three Scout variants:
+  - `Scout` / `Zwiadowiec`: current least-powerful grapple that only works after the hook is anchored on ground/block or in water, and pulls downward when the hook is below the player.
   - `Scout1` / `Zwiadowiec1`: saved old test version with air-grapple behavior, useful as a godmode/debug class.
+  - `Scout2` / `Zwiadowiec2`: restored old anchored grapple that requires ground/block/water, but keeps the previous upward-pop pull.
 
 ## Commands
 
@@ -27,6 +28,7 @@ The plugin currently focuses on the first playable class: `Zwiadowiec` / `Scout`
 - `/arena` sends `Arena system coming soon.`
 - `/class scout` or `/class zwiadowiec` selects normal Scout.
 - `/class scout1` or `/class zwiadowiec1` selects the old air-grapple Scout1 version.
+- `/class scout2` or `/class zwiadowiec2` selects the restored old anchored Scout2 version.
 - `/class none` removes your current class, clears inventory, and restores 20 HP.
 
 ## Build
@@ -73,6 +75,12 @@ C:\MinecraftServers\LegacyPVP\plugins
 1. Run `/class scout1` or `/class zwiadowiec1`.
 2. Throw the hook and right-click again while it is still in the air.
 3. Confirm this old debug version still launches you even without a real anchor.
+
+## Test Scout2
+
+1. Run `/class scout2` or `/class zwiadowiec2`.
+2. Throw the hook at a block, onto the ground, or into water.
+3. Right-click again and confirm it uses the old upward-pop grapple.
 
 ## Media
 

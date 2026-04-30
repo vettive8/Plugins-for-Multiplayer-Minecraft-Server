@@ -44,7 +44,8 @@ public final class LegacyPVP extends JavaPlugin implements Listener {
 
     private enum PlayerClass {
         SCOUT,
-        SCOUT1
+        SCOUT1,
+        SCOUT2
     }
 
     @Override
@@ -114,6 +115,15 @@ public final class LegacyPVP extends JavaPlugin implements Listener {
                     chooseScout(player, PlayerClass.SCOUT1);
                     yield true;
                 }
+                case "scout2", "zwiadowiec2" -> {
+                    if (!(sender instanceof Player player)) {
+                        sender.sendMessage("Only players can choose a class.");
+                        yield true;
+                    }
+
+                    chooseScout(player, PlayerClass.SCOUT2);
+                    yield true;
+                }
                 case "none" -> {
                     if (!(sender instanceof Player player)) {
                         sender.sendMessage("Only players can remove a class.");
@@ -132,7 +142,7 @@ public final class LegacyPVP extends JavaPlugin implements Listener {
     }
 
     private void sendClassUsage(CommandSender sender) {
-        sender.sendMessage("Usage: /class <scout|zwiadowiec|scout1|zwiadowiec1|none>");
+        sender.sendMessage("Usage: /class <scout|zwiadowiec|scout1|zwiadowiec1|scout2|zwiadowiec2|none>");
     }
 
     private void chooseScout(Player player, PlayerClass playerClass) {
@@ -149,11 +159,7 @@ public final class LegacyPVP extends JavaPlugin implements Listener {
 
         setMaxHealth(player, SCOUT_MAX_HEALTH);
         player.setHealth(SCOUT_MAX_HEALTH);
-        if (playerClass == PlayerClass.SCOUT1) {
-            player.sendMessage("Wybrano klas\u0119: Zwiadowiec1");
-        } else {
-            player.sendMessage("Wybrano klas\u0119: Zwiadowiec");
-        }
+        player.sendMessage("Wybrano klas\u0119: " + getClassDisplayName(playerClass));
     }
 
     private void removeClass(Player player) {
@@ -234,7 +240,7 @@ public final class LegacyPVP extends JavaPlugin implements Listener {
         }
 
         Location hookLocation = hook.getLocation();
-        if (playerClass == PlayerClass.SCOUT) {
+        if (requiresAnchoredHook(playerClass)) {
             hookLocation = getNormalScoutHookLocation(player, hook);
             if (hookLocation == null) {
                 return;
@@ -247,7 +253,7 @@ public final class LegacyPVP extends JavaPlugin implements Listener {
         hook.remove();
         clearScoutHookState(player.getUniqueId());
 
-        launchScoutToHook(player, hookLocation);
+        launchScoutToHook(player, hookLocation, playerClass);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
@@ -259,18 +265,18 @@ public final class LegacyPVP extends JavaPlugin implements Listener {
         }
 
         if (event.getState() == PlayerFishEvent.State.FISHING) {
-            if (playerClass == PlayerClass.SCOUT) {
+            if (requiresAnchoredHook(playerClass)) {
                 startScoutHookTracker(player);
             }
             return;
         }
 
-        if (playerClass == PlayerClass.SCOUT) {
+        if (requiresAnchoredHook(playerClass)) {
             rememberScoutHookAnchor(player, event.getHook());
         }
 
         if (shouldLaunchFromFishEvent(playerClass, event)) {
-            Location hookLocation = playerClass == PlayerClass.SCOUT
+            Location hookLocation = requiresAnchoredHook(playerClass)
                     ? getNormalScoutHookLocation(player, event.getHook())
                     : event.getHook().getLocation();
             if (hookLocation == null) {
@@ -280,7 +286,7 @@ public final class LegacyPVP extends JavaPlugin implements Listener {
             event.setCancelled(true);
             event.getHook().remove();
             clearScoutHookState(player.getUniqueId());
-            launchScoutToHook(player, hookLocation);
+            launchScoutToHook(player, hookLocation, playerClass);
         }
     }
 
@@ -300,13 +306,25 @@ public final class LegacyPVP extends JavaPlugin implements Listener {
         };
     }
 
+    private boolean requiresAnchoredHook(PlayerClass playerClass) {
+        return playerClass == PlayerClass.SCOUT || playerClass == PlayerClass.SCOUT2;
+    }
+
+    private String getClassDisplayName(PlayerClass playerClass) {
+        return switch (playerClass) {
+            case SCOUT -> "Zwiadowiec";
+            case SCOUT1 -> "Zwiadowiec1";
+            case SCOUT2 -> "Zwiadowiec2";
+        };
+    }
+
     private void startScoutHookTracker(Player player) {
         UUID playerId = player.getUniqueId();
         clearScoutHookState(playerId);
 
         BukkitTask task = getServer().getScheduler().runTaskTimer(this, () -> {
             Player onlinePlayer = getServer().getPlayer(playerId);
-            if (onlinePlayer == null || getPlayerClass(onlinePlayer) != PlayerClass.SCOUT) {
+            if (onlinePlayer == null || !requiresAnchoredHook(getPlayerClass(onlinePlayer))) {
                 stopScoutHookTracker(playerId);
                 return;
             }
@@ -370,22 +388,59 @@ public final class LegacyPVP extends JavaPlugin implements Listener {
         return false;
     }
 
-    private void launchScoutToHook(Player player, Location hookLocation) {
+    private void launchScoutToHook(Player player, Location hookLocation, PlayerClass playerClass) {
         if (hookLocation == null || !player.getWorld().equals(hookLocation.getWorld())) {
             return;
         }
 
-        Vector pull = hookLocation.toVector().subtract(player.getLocation().toVector());
-        pull.setY(0);
-        if (pull.lengthSquared() < 0.01) {
+        Vector direction = hookLocation.toVector().subtract(player.getLocation().toVector());
+        if (direction.lengthSquared() < 0.01) {
             return;
         }
 
-        pull.normalize().multiply(2.2);
-        pull.setY(1.15);
+        Vector pull = switch (playerClass) {
+            case SCOUT -> createNormalScoutVelocity(direction);
+            case SCOUT1, SCOUT2 -> createOldScoutVelocity(direction);
+        };
 
         player.setFallDistance(0);
         getServer().getScheduler().runTask(this, () -> player.setVelocity(pull));
+    }
+
+    private Vector createOldScoutVelocity(Vector direction) {
+        Vector pull = direction.clone();
+        pull.setY(0);
+        if (pull.lengthSquared() < 0.01) {
+            pull = direction.clone().normalize().multiply(2.2);
+        } else {
+            pull.normalize().multiply(2.2);
+        }
+        pull.setY(1.15);
+        return pull;
+    }
+
+    private Vector createNormalScoutVelocity(Vector direction) {
+        Vector pull = direction.clone();
+        double verticalDistance = pull.getY();
+        pull.setY(0);
+
+        if (pull.lengthSquared() >= 0.01) {
+            pull.normalize().multiply(2.6);
+        }
+
+        if (verticalDistance < -0.25) {
+            pull.setY(clamp(verticalDistance * 0.45, -1.9, -0.75));
+        } else if (verticalDistance > 0.25) {
+            pull.setY(clamp(verticalDistance * 0.25, 0.35, 1.0));
+        } else {
+            pull.setY(0.25);
+        }
+
+        return pull;
+    }
+
+    private double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
     }
 
     @EventHandler
