@@ -1,0 +1,15 @@
+name: LegacyPVP
+version: 1.0.0
+main: me.vettive.legacypvp.LegacyPVP
+api-version: '1.21'
+description: Minimal LegacyPVP Paper plugin.
+commands:
+  legacy:
+    description: Checks whether the LegacyPVP plugin is running.
+    usage: /legacy
+  arena:
+    description: Shows the current arena system status.
+    usage: /arena
+  class:
+    description: Selects or removes your LegacyPVP class.
+    usage: /class <scout|zwiadowiec|scout1|zwiadowiec1|none>
