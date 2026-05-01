@@ -1,6 +1,31 @@
-# LegacyPVPPlugin
+# Plugins for Multiplayer Minecraft Server
 
-LegacyPVPPlugin is a minimal Paper plugin for Minecraft/Paper 1.21.11 built with Java 21 and Gradle.
+Recreating and making a server I played in my early teenage years because looking at modern games and my gaming history, this was the best experience - community, minigames, progression. Focusing on creativity and actual fun & passion for the players and makers, not only a cash cow, that's why I'm giving it for free.
+
+Nowadays I focus on building AI Agents and Software for B2B Businesses, but keeping this as a passion project and creating it instead of playing video games cause now's the time to play the real life haha
+
+## Videos
+
+- [Scout Presentation](docs/media/videos/Scout%20Presentation.mp4)
+- [Minecraft Server & Dev Setup](docs/media/videos/Minecraft%20Server%20%26%20Dev%20Setup.mp4)
+
+The transcripts below are approximate and may not be 100% accurate.
+
+### Scout Presentation
+
+All right, so quick presentation. This is normal, right? This is how fishing rod works on Minecraft. But then I create a class called Scout.
+
+And that's how it works. So we can have this. And you're more mobile. Now there's Scout 2, which basically has more forward motion and launches it in the air.
+
+Boom. And then there's Scout 1. The air works as well.
+
+### Minecraft Server & Dev Setup
+
+So the project is based on vanilla Minecraft. So it's a server, not a modpack. And basically I have Minecraft dev and Minecraft servers. In Minecraft servers I have three plugins that I've used. These two, Multiverse Core and Voidgen are from outside sources or are made. And Legacy PvP is my customized plugin. So in Minecraft dev, which we are here, in Antigravity and Codex 5.5 that is helping me out, we have this server and this plugin. The server I have used PowerShell to open it up and I just stopped it. I have the whole console and that's how it works.
+
+## Current Plugin
+
+This repository currently contains a minimal Paper plugin for Minecraft/Paper 1.21.11 built with Java 21 and Gradle.
 
 The plugin currently focuses on the first playable class: `Zwiadowiec` / `Scout`.
 
@@ -84,22 +109,23 @@ C:\MinecraftServers\LegacyPVP\plugins
 
 ## Media
 
-Add screenshots here:
-
-```text
-docs/media/screenshots
-```
-
-Add videos here:
+Videos are stored here:
 
 ```text
 docs/media/videos
 ```
 
-After adding media, link it in this README. Example:
+Screenshots can be added here:
 
-```markdown
-![Scout grapple demo](docs/media/screenshots/scout-grapple.png)
+```text
+docs/media/screenshots
+```
+
+Current videos:
+
+```text
+docs/media/videos/Scout Presentation.mp4
+docs/media/videos/Minecraft Server & Dev Setup.mp4
 ```
 
 For larger videos, GitHub Releases or an external video host may be better than committing huge files directly to the repo.
